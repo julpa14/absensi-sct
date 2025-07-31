@@ -2078,16 +2078,38 @@
         async function initializeFirebaseAndLoadData() {
             showLoadingOverlay();
             try {
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                // Determine Firebase configuration based on environment
+                let firebaseConfig;
+                if (typeof __firebase_config !== 'undefined') {
+                    // Running in Canvas environment
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    console.log("Menggunakan konfigurasi Firebase dari lingkungan Canvas.");
+                } else {
+                    // Running outside Canvas (e.g., GitHub Pages)
+                    console.warn("Variabel __firebase_config tidak ditemukan. Menggunakan konfigurasi placeholder. Pastikan Anda menggantinya dengan detail proyek Firebase Anda!");
+                    firebaseConfig = {
+                        apiKey: "YOUR_API_KEY", // GANTI DENGAN KUNCI API ANDA
+                        authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // GANTI DENGAN DOMAIN AUTH ANDA
+                        projectId: "YOUR_PROJECT_ID", // GANTI DENGAN ID PROYEK ANDA
+                        storageBucket: "YOUR_PROJECT_ID.appspot.com", // GANTI DENGAN BUCKET PENYIMPANAN ANDA
+                        messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // GANTI DENGAN ID PENGIRIM PESAN ANDA
+                        appId: "YOUR_APP_ID" // GANTI DENGAN ID APLIKASI ANDA
+                    };
+                }
+
                 firebaseApp = initializeApp(firebaseConfig);
                 auth = getAuth(firebaseApp);
                 db = getFirestore(firebaseApp);
 
                 // Authenticate
                 if (typeof __initial_auth_token !== 'undefined') {
+                    // Authenticate with custom token if available (Canvas environment)
                     await signInWithCustomToken(auth, __initial_auth_token);
+                    console.log("Autentikasi dengan token kustom berhasil.");
                 } else {
+                    // Fallback to anonymous sign-in for GitHub Pages or other environments
                     await signInAnonymously(auth);
+                    console.log("Autentikasi anonim berhasil.");
                 }
 
                 currentUserId = auth.currentUser?.uid || crypto.randomUUID();
@@ -2114,6 +2136,7 @@
                         attendanceEndTime: attendanceEndTime,
                         isAttendanceActive: isAttendanceActive
                     });
+                    console.log("Pengaturan aplikasi default dibuat.");
                 }
 
                 // Ensure default admin user exists
@@ -2124,7 +2147,7 @@
                         password: 'admin123',
                         role: 'admin'
                     });
-                    console.log("Default admin user 'admin' created.");
+                    console.log("Pengguna admin default 'admin' dibuat.");
                 }
 
                 // Load Users (Admin and Students)
@@ -2133,7 +2156,7 @@
                     snapshot.forEach(doc => {
                         users[doc.id] = doc.data();
                     });
-                    console.log("Users loaded/updated from Firestore:", users);
+                    console.log("Pengguna dimuat/diperbarui dari Firestore:", users);
                 }, (error) => {
                     console.error("Error fetching users:", error);
                     showMessage('login-message', `Gagal memuat data pengguna: ${error.message}`, 'error');
@@ -2145,7 +2168,7 @@
                     snapshot.forEach(doc => {
                         students_data.set(doc.id, doc.data());
                     });
-                    console.log("Students data loaded/updated from Firestore:", Array.from(students_data.entries()));
+                    console.log("Data siswa dimuat/diperbarui dari Firestore:", Array.from(students_data.entries()));
                 }, (error) => {
                     console.error("Error fetching students data:", error);
                     showMessage('login-message', `Gagal memuat data siswa: ${error.message}`, 'error');
@@ -2157,7 +2180,7 @@
                     snapshot.forEach(doc => {
                         absensi_records.push(doc.data());
                     });
-                    console.log("Attendance records loaded/updated from Firestore:", absensi_records);
+                    console.log("Catatan absensi dimuat/diperbarui dari Firestore:", absensi_records);
                     // If live attendance is open, refresh it
                     if (!document.getElementById('live-attendance-section').classList.contains('hidden')) {
                         viewLiveAttendanceToday(currentLiveAttendanceFilterClass);
@@ -2174,7 +2197,7 @@
                 updateAttendanceStatusBadge(); // Initial update for attendance status
 
             } catch (error) {
-                console.error("Failed to initialize Firebase or load initial data:", error);
+                console.error("Gagal menginisialisasi Firebase atau memuat data awal:", error);
                 hideLoadingOverlay();
                 document.getElementById('login-section').classList.remove('hidden'); // Show login section even on error
                 showMessage('login-message', `Gagal memuat aplikasi. Periksa koneksi internet atau hubungi dukungan. (${error.message})`, 'error');
