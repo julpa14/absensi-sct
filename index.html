@@ -1,0 +1,2197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi SMP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN for modern icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom styles for Inter font and general body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eef2f6; /* Latar belakang lebih lembut */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333; /* Warna teks default */
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px; /* Sudut lebih membulat */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Bayangan lebih dalam */
+            width: 100%;
+            max-width: 650px; /* Lebar maksimum sedikit lebih besar */
+            text-align: center;
+            border: 1px solid #e2e8f0; /* Border tipis */
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="file"],
+        input[type="time"],
+        input[type="date"], /* Added for date input */
+        select {
+            border-radius: 10px; /* Sudut lebih membulat */
+            padding: 14px 18px; /* Padding lebih besar */
+            margin-bottom: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #cbd5e1; /* Warna border lebih jelas */
+            transition: all 0.2s ease-in-out;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6366f1; /* Warna border saat fokus */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Efek bayangan saat fokus */
+        }
+        button {
+            background-color: #6366f1; /* Warna tombol utama */
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 10px; /* Sudut tombol lebih membulat */
+            padding: 14px 20px; /* Padding tombol lebih besar */
+            margin-bottom: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+            display: flex; /* Untuk ikon di tombol */
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Jarak antara teks dan ikon */
+        }
+        button:hover {
+            background-color: #4f46e5; /* Warna hover tombol utama */
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.3);
+            transform: translateY(-2px); /* Efek angkat sedikit */
+        }
+        /* Specific button colors from the image */
+        .btn-blue { background-color: #4285F4; } /* Google Blue */
+        .btn-blue:hover { background-color: #3c78d8; }
+        .btn-green { background-color: #34A853; } /* Google Green */
+        .btn-green:hover { background-color: #2e9b4a; }
+        .btn-orange { background-color: #FBBC04; color: #333; } /* Google Yellow */
+        .btn-orange:hover { background-color: #f2b000; }
+        .btn-gold { background-color: #F7C500; color: #333; } /* Custom Gold for Live Absensi */
+        .btn-gold:hover { background-color: #e0b300; }
+        .btn-teal { background-color: #00A896; } /* Custom Teal for Rekap */
+        .btn-teal:hover { background-color: #009181; }
+        .btn-purple { background-color: #8E24AA; } /* Custom Purple for PDF */
+        .btn-purple:hover { background-color: #7a1f93; }
+        .btn-pink { background-color: #E91E63; } /* Custom Pink for Time Settings */
+        .btn-pink:hover { background-color: #d81b60; }
+        .btn-indigo { background-color: #3F51B5; } /* Custom Indigo for Admin Account */
+        .btn-indigo:hover { background-color: #3949AB; }
+
+
+        .button-secondary {
+            background-color: #6b7280; /* Warna tombol sekunder */
+            box-shadow: 0 4px 10px rgba(107, 114, 128, 0.2);
+        }
+        .button-secondary:hover {
+            background-color: #4b5563;
+            box-shadow: 0 6px 15px rgba(107, 114, 128, 0.3);
+        }
+        .button-danger {
+            background-color: #ef4444; /* Warna tombol bahaya */
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
+        .button-danger:hover {
+            background-color: #dc2626;
+            box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+        }
+        .message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            text-align: left;
+        }
+        .message.success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #34d399;
+        }
+        .message.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        .hidden {
+            display: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 12px; /* Sudut tabel lebih membulat */
+            overflow: hidden; /* Ensures rounded corners apply to table */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Bayangan tabel */
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px; /* Padding sel lebih besar */
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #e0e7ff; /* Warna header tabel */
+            font-weight: bold;
+            color: #374151;
+        }
+        tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        tr:hover {
+            background-color: #f3f4f6;
+        }
+        .sub-section {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+            margin-top: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .sub-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        /* Styles for Admin Dashboard Header */
+        .admin-header {
+            background-color: #f0f2f5;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+        .admin-header .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .admin-header .top-bar .user-info {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: #4a5568;
+        }
+        .admin-header .top-bar .user-info svg { /* Style for Lucide icons */
+            margin-right: 8px;
+            color: #6366f1;
+            width: 20px; /* Adjust size as needed */
+            height: 20px;
+        }
+        .admin-header .class-filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        .admin-header .class-filter-buttons .filter-button {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #c7d2fe;
+        }
+        .admin-header .class-filter-buttons .filter-button.active,
+        .admin-header .class-filter-buttons .filter-button:hover {
+            background-color: #6366f1;
+            color: white;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+        }
+        .admin-header .datetime-display {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+        /* Status badge for attendance */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .status-badge.inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+        .status-badge svg { /* Style for Lucide icons */
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+        }
+
+
+        /* Live Absensi Card */
+        .live-attendance-card {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 25px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+        .live-attendance-card .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .live-attendance-card .card-header h3 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-attendance-card .card-header h3 svg { /* Style for Lucide icons */
+            color: #6366f1;
+            width: 24px;
+            height: 24px;
+        }
+        .live-attendance-card .card-header .total-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a5568;
+            background-color: #e0e7ff;
+            padding: 5px 12px;
+            border-radius: 15px;
+        }
+        .live-attendance-card .empty-state {
+            text-align: center;
+            padding: 30px 0;
+            color: #6b7280;
+        }
+        .live-attendance-card .empty-state svg { /* Style for Lucide icons */
+            font-size: 3rem; /* Fallback for font awesome */
+            color: #cbd5e1;
+            margin-bottom: 15px;
+            width: 48px; /* Adjust size as needed */
+            height: 48px;
+        }
+
+        /* Attendance Time Settings */
+        .attendance-time-controls {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center; /* Center items */
+        }
+        .attendance-time-controls > div {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .attendance-time-controls input[type="time"],
+        .attendance-time-controls input[type="date"] {
+            width: 150px; /* Slightly wider for date/time */
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+        .attendance-time-controls label {
+            font-weight: bold;
+            color: #4a5568;
+            white-space: nowrap; /* Prevent label from wrapping */
+        }
+        .attendance-time-controls button {
+            width: auto;
+            flex-grow: 1;
+            margin-bottom: 0;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        .attendance-time-controls .toggle-button {
+            background-color: #22c55e; /* Green for active */
+        }
+        .attendance-time-controls .toggle-button.inactive {
+            background-color: #ef4444; /* Red for inactive */
+        }
+        .attendance-time-controls .toggle-button:hover {
+            opacity: 0.9;
+        }
+        .attendance-time-status {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        /* Styles for PDF export (print media) */
+        @media print {
+            body {
+                background-color: #fff;
+                justify-content: flex-start;
+                align-items: flex-start;
+                min-height: auto;
+                padding: 0;
+            }
+            .container,
+            #login-section,
+            #admin-menu button:not(#print-recap-button), /* Sembunyikan tombol selain cetak */
+            #student-menu,
+            .message,
+            input[type="text"],
+            input[type="password"],
+            input[type="file"],
+            label,
+            .sub-section button:not(#print-recap-button),
+            .sub-section input,
+            .sub-section p.text-sm,
+            .admin-header, /* Sembunyikan header admin saat print */
+            .live-attendance-card { /* Sembunyikan card live absensi saat print */
+                display: none !important; /* Hide everything except the content to be printed */
+            }
+            #attendance-recap-print-area {
+                display: block !important;
+                width: 100%;
+                padding: 20px;
+            }
+            #attendance-recap-print-area h2,
+            #attendance-recap-print-area p {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            #attendance-recap-print-area table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            #attendance-recap-print-area th,
+            #attendance-recap-print-area td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+                font-size: 10px;
+            }
+            #attendance-recap-print-area th {
+                background-color: #ccc;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 450px;
+            text-align: left;
+            position: relative;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #4a5568;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .modal-content .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+            width: auto; /* Override button default width */
+            margin-bottom: 0; /* Override button default margin */
+            box-shadow: none; /* Override button default shadow */
+        }
+        .modal-content .close-button:hover {
+            background-color: #e2e8f0;
+        }
+        .modal-content button {
+            margin-top: 15px;
+            width: 100%;
+        }
+        .modal-content .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-content .button-group button {
+            flex: 1;
+            margin-bottom: 0; /* Override default button margin */
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            font-size: 1.5rem;
+            color: #6366f1;
+            font-weight: bold;
+            flex-direction: column;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-8 hidden" id="main-app-title">Sistem Absensi SMP</h1>
+
+        <!-- Bagian Loading -->
+        <div id="loading-section" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <p>Memuat data...</p>
+        </div>
+
+        <!-- Bagian Login -->
+        <div id="login-section" class="hidden">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4" id="main-app-title-display">Sistem Absensi SMP</h1>
+            <div class="flex items-center justify-center mb-4">
+                <img id="login-left-logo" src="" alt="Logo Aplikasi" class="h-12 w-12 mr-0 rounded-full hidden">
+                <i data-lucide="book-open" class="text-5xl text-indigo-600 mr-0" id="login-center-icon"></i> <!-- Ikon buku -->
+            </div>
+            <p class="text-gray-600 mb-4">Silakan login untuk melanjutkan</p>
+            <p class="text-indigo-600 font-bold text-3xl mb-6 flex flex-col items-center justify-center">
+                <span id="current-day-date-display" class="text-xl"></span>
+                <span id="current-time-display">00.00.00 WIB</span>
+            </p>
+
+            <input type="text" id="username" placeholder="Masukkan username" class="mb-4">
+            <input type="password" id="password" placeholder="Masukkan password" class="mb-4">
+            <button onclick="handleLogin()">
+                <i data-lucide="log-in"></i> Login
+            </button>
+            <div id="login-message" class="message hidden"></div>
+
+            <div class="text-sm text-gray-500 mt-6 text-left hidden"> <!-- Hidden admin default info -->
+                <p><b>Admin:</b> Username: admin, Password: admin123</p>
+                <p><b>Siswa:</b> Username: Nama Lengkap, Password: siswa123</p>
+            </div>
+        </div>
+
+        <!-- Bagian Menu Admin -->
+        <div id="admin-menu" class="hidden">
+            <div class="admin-header">
+                <div class="top-bar">
+                    <div class="user-info">
+                        <i data-lucide="user-circle"></i> Admin: <span id="admin-username-display">admin</span>
+                    </div>
+                    <button onclick="logout()" class="button-danger !w-auto !py-2 !px-4 !mb-0 !shadow-none">
+                        <i data-lucide="log-out"></i> Logout
+                    </button>
+                </div>
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-3" id="admin-app-title-display">Sistem Absensi SMP</h2>
+                <div class="flex items-center justify-center mb-3">
+                    <img id="admin-left-logo" src="" alt="Logo Aplikasi" class="h-10 w-10 mr-0 rounded-full hidden">
+                    <i data-lucide="book-open" class="text-3xl text-indigo-600 mr-0" id="admin-center-icon"></i>
+                </div>
+                <p class="text-gray-600 mb-2">Absensi Harian Siswa Kelas 7, 8, 9</p>
+                <div id="attendance-status-badge" class="status-badge">
+                    <i data-lucide="check-circle"></i> Absensi Sedang Aktif
+                </div>
+                <div class="datetime-display text-xl font-bold text-gray-800">
+                    <span id="admin-day-date-display"></span>
+                    <i data-lucide="clock" class="ml-2 mr-1"></i> <span id="admin-time-display"></span>
+                </div>
+            </div>
+
+            <div id="admin-general-message" class="message hidden"></div> <!-- New general message area for admin -->
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <button onclick="showImportStudents()" class="btn-blue"><i data-lucide="file-input"></i> Impor Data Siswa (CSV)</button>
+                <button onclick="showAddSingleStudent()" class="btn-green"><i data-lucide="user-plus"></i> Tambah Siswa Satuan</button>
+                <button onclick="showClassDataMenu()" class="btn-orange"><i data-lucide="users"></i> Data Kelas</button>
+                <button onclick="viewLiveAttendanceToday()" class="btn-gold"><i data-lucide="activity"></i> Live Absensi Hari Ini</button>
+                <div class="relative w-full">
+                    <button onclick="toggleExportOptions()" class="btn-purple"><i data-lucide="download-cloud"></i> Ekspor Rekap Absensi</button>
+                    <div id="export-options" class="absolute z-10 bg-white shadow-lg rounded-lg mt-2 w-full hidden">
+                        <button onclick="exportAttendanceToPdf()" class="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-t-lg !mb-0 !shadow-none !bg-transparent"><i data-lucide="file-text"></i> Ekspor ke PDF</button>
+                        <button onclick="exportAttendanceToCsv()" class="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 rounded-b-lg !mb-0 !shadow-none !bg-transparent"><i data-lucide="file-spreadsheet"></i> Ekspor ke Excel (CSV)</button>
+                    </div>
+                </div>
+                <button onclick="showManageAttendanceTime()" class="btn-pink"><i data-lucide="calendar-clock"></i> Atur Waktu & Tanggal Absensi</button>
+                <button onclick="showManageAdminAccount()" class="btn-indigo"><i data-lucide="settings"></i> Kelola Akun Admin</button>
+                <button onclick="showAppSettings()" class="btn-green"><i data-lucide="settings-2"></i> Pengaturan Aplikasi</button>
+            </div>
+
+
+            <!-- Sub-bagian Impor Siswa -->
+            <div id="import-students-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Impor Data Siswa dari CSV</h3>
+                <p class="text-sm text-gray-600 mb-4">Unggah file CSV dengan kolom: <b>Nama, Kelas</b>. Pastikan kelas sesuai dengan pilihan di bawah.</p>
+                <div class="flex items-center gap-4 mb-4">
+                    <label for="import-class-level" class="font-bold text-gray-700">Pilih Kelas:</label>
+                    <select id="import-class-level" class="flex-grow">
+                        <option value="">Pilih Tingkat Kelas</option>
+                        <option value="7">Kelas 7</option>
+                        <option value="8">Kelas 8</option>
+                        <option value="9">Kelas 9</option>
+                    </select>
+                </div>
+                <input type="file" id="csv-file-input" accept=".csv" class="mb-4">
+                <button onclick="importStudentsFromFile()"><i data-lucide="upload"></i> Proses Impor</button>
+                <div id="import-message" class="message hidden"></div>
+                <button onclick="hideImportStudents()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Tambah Siswa Satuan -->
+            <div id="add-single-student-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Tambah Siswa Baru</h3>
+                <input type="text" id="new-student-username" placeholder="Username Siswa (Nama Lengkap)" class="mb-3">
+                <input type="text" id="new-student-class" placeholder="Kelas (contoh: 7A, 8B, 9C)" class="mb-3">
+                <input type="password" id="new-student-password" placeholder="Password Siswa (default: siswa123)" class="mb-4">
+                <button onclick="addSingleStudent()"><i data-lucide="plus-circle"></i> Tambah Siswa</button>
+                <div id="add-student-message" class="message hidden"></div>
+                <button onclick="hideAddSingleStudent()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Live Absensi Hari Ini -->
+            <div id="live-attendance-section" class="hidden live-attendance-card">
+                <div class="card-header">
+                    <h3><i data-lucide="activity"></i> Live Absensi Siswa</h3>
+                    <div class="total-count">Total Absen Hari Ini: <span id="live-attendance-total">0</span></div>
+                </div>
+                <div class="class-filter-buttons">
+                    <button class="filter-button active" data-class="all" onclick="filterLiveAttendance('all')">Semua Kelas</button>
+                    <button class="filter-button" data-class="7" onclick="filterLiveAttendance('7')">Kelas 7</button>
+                    <button class="filter-button" data-class="8" onclick="filterLiveAttendance('8')">Kelas 8</button>
+                    <button class="filter-button" data-class="9" onclick="filterLiveAttendance('9')">Kelas 9</button>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Data absensi real-time untuk <span id="live-attendance-date-filtered"></span></p>
+                <div id="live-recap-table-container" class="overflow-x-auto">
+                    <div class="empty-state">
+                        <i data-lucide="hourglass"></i>
+                        <p>Menunggu siswa melakukan absensi...</p>
+                        <p class="text-xs">Aktivitas absensi siswa akan muncul di sini secara real-time</p>
+                    </div>
+                </div>
+                <!-- New download button for live attendance -->
+                <button onclick="exportLiveAttendanceToCsv(currentLiveAttendanceFilterClass)" class="btn-teal mt-4"><i data-lucide="download"></i> Unduh Rekap Live Absensi</button>
+                <button onclick="hideLiveAttendance()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Rekap Absensi (Semua) -->
+            <div id="attendance-recap-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Rekapitulasi Absensi (Semua Data)</h3>
+                <div id="recap-table-container" class="overflow-x-auto">
+                    <!-- Tabel rekap absensi akan dimuat di sini oleh JavaScript -->
+                </div>
+                <button onclick="hideAttendanceRecap()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Kelola Akun Admin -->
+            <div id="manage-admin-account-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Kelola Akun Admin</h3>
+                <input type="password" id="current-admin-password" placeholder="Password Admin Saat Ini" class="mb-3">
+                <input type="text" id="new-admin-username" placeholder="Username Admin Baru" class="mb-3">
+                <input type="password" id="new-admin-password" placeholder="Password Admin Baru" class="mb-3">
+                <input type="password" id="confirm-new-admin-password" placeholder="Konfirmasi Password Baru" class="mb-4">
+                <button onclick="updateAdminAccount()"><i data-lucide="save"></i> Perbarui Akun Admin</button>
+                <div id="admin-account-message" class="message hidden"></div>
+                <button onclick="hideManageAdminAccount()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Atur Waktu Absensi -->
+            <div id="manage-attendance-time-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Atur Waktu & Tanggal Absensi</h3>
+                <div class="attendance-time-controls">
+                    <div>
+                        <label for="attendance-date">Tanggal:</label>
+                        <input type="date" id="attendance-date">
+                    </div>
+                    <div>
+                        <label for="start-time">Mulai:</label>
+                        <input type="time" id="start-time" value="07:00">
+                    </div>
+                    <div>
+                        <label for="end-time">Selesai:</label>
+                        <input type="time" id="end-time" value="08:00">
+                    </div>
+                </div>
+                <button onclick="setAttendanceTime()"><i data-lucide="hourglass"></i> Simpan Waktu & Tanggal Absensi</button>
+                <button id="toggle-attendance-button" onclick="toggleAttendanceActive()" class="toggle-button"><i data-lucide="toggle-right"></i> Absensi Aktif</button>
+                <div id="attendance-time-message" class="message hidden"></div>
+                <div id="current-attendance-time-status" class="attendance-time-status"></div>
+                <button onclick="hideManageAttendanceTime()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Data Kelas -->
+            <div id="class-data-menu-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Pilih Kelas untuk Melihat Data Siswa</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <button onclick="viewClassData(7)" class="bg-blue-500 hover:bg-blue-600"><i data-lucide="users"></i> Kelas 7</button>
+                    <button onclick="viewClassData(8)" class="bg-blue-500 hover:bg-blue-600"><i data-lucide="users"></i> Kelas 8</button>
+                    <button onclick="viewClassData(9)" class="bg-blue-500 hover:bg-blue-600"><i data-lucide="users"></i> Kelas 9</button>
+                </div>
+                <button onclick="hideClassDataMenu()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Detail Data Kelas (akan diisi dinamis) -->
+            <div id="class-data-detail-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Data Siswa Kelas <span id="class-data-title"></span></h3>
+                <div id="class-data-table-container" class="overflow-x-auto">
+                    <!-- Tabel data siswa akan dimuat di sini oleh JavaScript -->
+                </div>
+                <button onclick="hideClassDataDetail()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+            <!-- Sub-bagian Pengaturan Aplikasi -->
+            <div id="app-settings-section" class="hidden sub-section">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Pengaturan Aplikasi</h3>
+                <label for="app-title-input" class="block text-left text-gray-700 font-bold mb-2">Nama Aplikasi:</label>
+                <input type="text" id="app-title-input" placeholder="Nama Aplikasi" class="mb-3">
+
+                <label for="left-logo-file-input" class="block text-left text-gray-700 font-bold mb-2">Unggah Logo (Opsional):</label>
+                <input type="file" id="left-logo-file-input" accept="image/*" class="mb-3">
+                <img id="left-logo-preview" src="" alt="Pratinjau Logo" class="h-16 w-16 mx-auto mb-3 rounded-full hidden">
+
+                <!-- Removed right-logo-file-input and right-logo-preview as per request -->
+                <input type="file" id="right-logo-file-input" accept="image/*" class="mb-4 hidden"> <!-- Kept hidden for JS compatibility, but not used -->
+                <img id="right-logo-preview" src="" alt="Pratinjau Logo Kanan" class="h-16 w-16 mx-auto mb-3 rounded-full hidden">
+
+
+                <button onclick="updateAppSettings()"><i data-lucide="save"></i> Simpan Pengaturan</button>
+                <div id="app-settings-message" class="message hidden"></div>
+                <button onclick="hideAppSettings()" class="button-secondary mt-4"><i data-lucide="arrow-left"></i> Kembali</button>
+            </div>
+
+        </div>
+
+        <!-- Bagian Menu Siswa -->
+        <div id="student-menu" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-700 mb-6">Menu Siswa</h2>
+            <p id="student-welcome-text" class="text-lg text-gray-600 mb-6"></p>
+            <button onclick="recordAttendance()"><i data-lucide="clipboard-check"></i> Lakukan Absensi</button>
+            <div id="attendance-message" class="message hidden"></div>
+            <button onclick="logout()" class="button-danger mt-4"><i data-lucide="log-out"></i> Logout</button>
+        </div>
+
+        <!-- Area untuk Cetak PDF (disembunyikan secara default, hanya terlihat saat print) -->
+        <div id="attendance-recap-print-area" class="hidden">
+            <!-- Konten rekap absensi untuk dicetak akan dimuat di sini -->
+        </div>
+
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="edit-student-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-button" onclick="hideEditStudentModal()">&times;</button>
+            <h3>Edit Data Siswa</h3>
+            <input type="hidden" id="edit-old-username">
+            <label for="edit-new-username" class="block text-left text-gray-700 font-bold mb-2">Username (Nama Lengkap):</label>
+            <input type="text" id="edit-new-username" placeholder="Username Siswa (Nama Lengkap)" class="mb-3">
+            <label for="edit-new-class" class="block text-left text-gray-700 font-bold mb-2">Kelas:</label>
+            <input type="text" id="edit-new-class" placeholder="Kelas (contoh: 7A, 8B, 9C)" class="mb-4">
+            <div id="edit-student-message" class="message hidden"></div>
+            <div class="button-group">
+                <button onclick="saveEditedStudent()" class="btn-green"><i data-lucide="save"></i> Simpan Perubahan</button>
+                <button onclick="hideEditStudentModal()" class="button-secondary"><i data-lucide="x"></i> Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-delete-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-button" onclick="hideConfirmDeleteModal()">&times;</button>
+            <h3>Konfirmasi Penghapusan</h3>
+            <p id="confirm-delete-message" class="text-gray-700 mb-4">Apakah Anda yakin ingin menghapus siswa ini?</p>
+            <input type="hidden" id="delete-username-to-confirm">
+            <div class="button-group">
+                <button onclick="performDeleteStudent()" class="button-danger"><i data-lucide="trash-2"></i> Hapus</button>
+                <button onclick="hideConfirmDeleteModal()" class="button-secondary"><i data-lucide="x"></i> Batal</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // --- Firebase Imports ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- 1. Data Penyimpanan (Variabel Global) ---
+        let firebaseApp;
+        let db;
+        let auth;
+        let currentUserId; // Firebase User ID
+
+        // In-memory caches for Firestore data (will be synced from Firestore)
+        let users = {}; // Key: username, Value: { password, role }
+        let students_data = new Map(); // Key: username, Value: { kelas }
+        let absensi_records = []; // Array of attendance records
+
+        let loggedInUser = null;
+        let loggedInRole = null;
+        let currentLiveAttendanceFilterClass = 'all'; // Default filter for live attendance
+
+        // Waktu Absensi & Status (will be loaded from Firestore)
+        let attendanceDate = new Date().toISOString().slice(0, 10); // Default to today's date (YYYY-MM-DD)
+        let attendanceStartTime = '07:00'; // Default start time
+        let attendanceEndTime = '08:00';   // Default end time
+        let isAttendanceActive = true;     // Default to active
+
+        // Pengaturan Aplikasi (will be loaded from Firestore)
+        let appTitle = "Sistem Absensi SMP";
+        let leftLogoUrl = "";
+        let rightLogoUrl = ""; // Not used for display, but kept for consistency if stored
+
+        // Firestore paths
+        const APP_ID = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const FIRESTORE_APP_SETTINGS_DOC_PATH = `artifacts/${APP_ID}/public/data/app_settings/settings`;
+        const FIRESTORE_USERS_COLLECTION_PATH = `artifacts/${APP_ID}/public/data/users`;
+        const FIRESTORE_STUDENTS_COLLECTION_PATH = `artifacts/${APP_ID}/public/data/students`;
+        const FIRESTORE_ATTENDANCE_COLLECTION_PATH = `artifacts/${APP_ID}/public/data/attendance_records`;
+
+        // --- 2. Fungsi Pembantu UI ---
+
+        function showLoadingOverlay() {
+            document.getElementById('loading-section').classList.remove('hidden');
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('admin-menu').classList.add('hidden');
+            document.getElementById('student-menu').classList.add('hidden');
+        }
+
+        function hideLoadingOverlay() {
+            document.getElementById('loading-section').classList.add('hidden');
+        }
+
+        function hideAllSubSections() {
+            document.querySelectorAll('.sub-section, .live-attendance-card').forEach(section => {
+                section.classList.add('hidden');
+            });
+            // Sembunyikan semua pesan juga
+            document.querySelectorAll('.message').forEach(msgElement => {
+                msgElement.classList.add('hidden');
+            });
+            document.getElementById('export-options').classList.add('hidden'); // Ensure export options are hidden
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.container > div').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+            hideAllSubSections(); // Pastikan semua sub-bagian tersembunyi saat berpindah menu utama
+            if (sectionId === 'admin-menu') {
+                updateAdminDateTime(); // Perbarui waktu di admin dashboard
+                updateAttendanceStatusBadge(); // Perbarui status absensi di header admin
+            }
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = `message ${type}`;
+                element.classList.remove('hidden');
+            } else {
+                console.error(`Element with ID '${elementId}' not found for showing message.`);
+            }
+        }
+
+        function hideMessage(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.classList.add('hidden');
+            } else {
+                console.warn(`Element with ID '${elementId}' not found for hiding message.`);
+            }
+        }
+
+        function updateCurrentTimeDisplay() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dayDateString = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+            const currentTimeDisplay = document.getElementById('current-time-display');
+            const currentDayDateDisplay = document.getElementById('current-day-date-display');
+
+            if (currentTimeDisplay) {
+                currentTimeDisplay.textContent = `${timeString} WIB`;
+            }
+            if (currentDayDateDisplay) {
+                currentDayDateDisplay.textContent = dayDateString;
+            }
+        }
+
+        function updateAdminDateTime() {
+            const now = new Date();
+            const dayDateString = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const timeString = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            const adminDayDateDisplay = document.getElementById('admin-day-date-display');
+            const adminTimeDisplay = document.getElementById('admin-time-display');
+
+            // Add null checks before setting textContent
+            if (adminDayDateDisplay) {
+                adminDayDateDisplay.textContent = dayDateString;
+            }
+            if (adminTimeDisplay) {
+                adminTimeDisplay.textContent = `${timeString} WIB`;
+            }
+        }
+
+        function updateAttendanceStatusBadge() {
+            const badge = document.getElementById('attendance-status-badge');
+            const toggleButton = document.getElementById('toggle-attendance-button');
+            const statusText = document.getElementById('current-attendance-time-status');
+
+            const formattedDate = new Date(attendanceDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            if (isAttendanceActive) {
+                badge.className = 'status-badge'; // Reset to default active style
+                badge.innerHTML = `<i data-lucide="check-circle"></i> Absensi Aktif (${formattedDate}, ${attendanceStartTime} - ${attendanceEndTime})`;
+                if (toggleButton) { // Check if button exists before updating
+                    toggleButton.innerHTML = `<i data-lucide="toggle-right"></i> Absensi Aktif`;
+                    toggleButton.classList.remove('inactive');
+                }
+                if (statusText) {
+                    statusText.textContent = `Absensi saat ini AKTIF untuk tanggal ${formattedDate} dari ${attendanceStartTime} hingga ${attendanceEndTime}.`;
+                }
+            } else {
+                badge.className = 'status-badge inactive'; // Apply inactive style
+                badge.innerHTML = `<i data-lucide="x-circle"></i> Absensi Tidak Aktif`;
+                if (toggleButton) { // Check if button exists before updating
+                    toggleButton.innerHTML = `<i data-lucide="toggle-left"></i> Absensi Tidak Aktif`;
+                    toggleButton.classList.add('inactive');
+                }
+                if (statusText) {
+                    statusText.textContent = `Absensi saat ini TIDAK AKTIF.`;
+                }
+            }
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        function updateAppTitleDisplay() {
+            const mainTitle = document.getElementById('main-app-title-display');
+            const adminTitle = document.getElementById('admin-app-title-display');
+            const loginLeftLogo = document.getElementById('login-left-logo');
+            const adminLeftLogo = document.getElementById('admin-left-logo');
+            const loginCenterIcon = document.getElementById('login-center-icon');
+            const adminCenterIcon = document.getElementById('admin-center-icon');
+            const leftLogoPreview = document.getElementById('left-logo-preview');
+            const rightLogoPreview = document.getElementById('right-logo-preview'); // Still exists for preview, but not used for display
+
+            if (mainTitle) mainTitle.textContent = appTitle;
+            if (adminTitle) adminTitle.textContent = appTitle;
+
+            // Handle left logo (now the only logo)
+            if (leftLogoUrl) {
+                if (loginLeftLogo) {
+                    loginLeftLogo.src = leftLogoUrl;
+                    loginLeftLogo.classList.remove('hidden');
+                    loginLeftLogo.onerror = () => { console.error("Failed to load login logo."); loginLeftLogo.classList.add('hidden'); loginCenterIcon.classList.remove('hidden'); };
+                }
+                if (adminLeftLogo) {
+                    adminLeftLogo.src = leftLogoUrl;
+                    adminLeftLogo.classList.remove('hidden');
+                    adminLeftLogo.onerror = () => { console.error("Failed to load admin logo."); adminLeftLogo.classList.add('hidden'); adminCenterIcon.classList.remove('hidden'); };
+                }
+                if (leftLogoPreview) {
+                    leftLogoPreview.src = leftLogoUrl;
+                    leftLogoPreview.classList.remove('hidden');
+                    leftLogoPreview.onerror = () => { console.error("Failed to load left preview logo."); leftLogoPreview.classList.add('hidden'); };
+                }
+                // Hide center icon if logo is present
+                if (loginCenterIcon) loginCenterIcon.classList.add('hidden');
+                if (adminCenterIcon) adminCenterIcon.classList.add('hidden');
+            } else {
+                if (loginLeftLogo) { loginLeftLogo.classList.add('hidden'); loginLeftLogo.src = ""; }
+                if (adminLeftLogo) { adminLeftLogo.classList.add('hidden'); adminLeftLogo.src = ""; }
+                if (leftLogoPreview) { leftLogoPreview.classList.add('hidden'); leftLogoPreview.src = ""; }
+                // Show center icon if no logo
+                if (loginCenterIcon) loginCenterIcon.classList.remove('hidden');
+                if (adminCenterIcon) adminCenterIcon.classList.remove('hidden');
+            }
+
+            // Ensure right logo related elements are hidden or removed from display logic
+            if (rightLogoPreview) { rightLogoPreview.classList.add('hidden'); rightLogoPreview.src = ""; } // Still exists for preview, but hidden by default
+
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+
+        // --- 3. Fungsi Otentikasi ---
+
+        async function handleLogin() {
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const loginMessage = document.getElementById('login-message');
+
+            hideMessage('login-message');
+
+            try {
+                const userDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, usernameInput);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    if (userData.password === passwordInput) {
+                        loggedInUser = usernameInput;
+                        loggedInRole = userData.role;
+                        showMessage('login-message', 'Login berhasil!', 'success');
+                        setTimeout(() => {
+                            if (loggedInRole === 'admin') {
+                                document.getElementById('admin-username-display').textContent = loggedInUser;
+                                showSection('admin-menu');
+                            } else if (loggedInRole === 'siswa') {
+                                document.getElementById('student-welcome-text').textContent = `Selamat datang, ${usernameInput}!`;
+                                showSection('student-menu');
+                            }
+                        }, 1000);
+                    } else {
+                        showMessage('login-message', 'Username atau password salah.', 'error');
+                    }
+                } else {
+                    showMessage('login-message', 'Username atau password salah.', 'error');
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                showMessage('login-message', `Terjadi kesalahan saat login: ${error.message}`, 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                await signOut(auth);
+                loggedInUser = null;
+                loggedInRole = null;
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+                hideMessage('login-message');
+                hideAllSubSections(); // Sembunyikan semua sub-menu
+                showSection('login-section');
+                console.log("Pengguna telah logout.");
+            } catch (error) {
+                console.error("Error during logout:", error);
+                showMessage('admin-general-message', `Terjadi kesalahan saat logout: ${error.message}`, 'error');
+            }
+        }
+
+        // --- 4. Fungsi Admin ---
+
+        function toggleExportOptions() {
+            const exportOptions = document.getElementById('export-options');
+            exportOptions.classList.toggle('hidden');
+        }
+
+        function showImportStudents() {
+            hideAllSubSections();
+            document.getElementById('import-students-section').classList.remove('hidden');
+            document.getElementById('import-class-level').value = ''; // Reset dropdown
+        }
+
+        function hideImportStudents() {
+            document.getElementById('import-students-section').classList.add('hidden');
+            document.getElementById('csv-file-input').value = ''; // Reset input file
+            hideMessage('import-message');
+        }
+
+        async function importStudentsFromFile() {
+            const fileInput = document.getElementById('csv-file-input');
+            const file = fileInput.files[0];
+            const importMessage = document.getElementById('import-message');
+            const selectedClassLevel = document.getElementById('import-class-level').value;
+
+            hideMessage('import-message');
+
+            if (!selectedClassLevel) {
+                showMessage('import-message', 'Pilih tingkat kelas terlebih dahulu.', 'error');
+                return;
+            }
+
+            if (!file) {
+                showMessage('import-message', 'Pilih file CSV terlebih dahulu.', 'error');
+                return;
+            }
+
+            if (file.type !== 'text/csv') {
+                showMessage('import-message', 'File harus berformat CSV.', 'error');
+                return;
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim() !== ''); // Filter baris kosong
+
+                    if (lines.length === 0) {
+                        showMessage('import-message', 'File CSV kosong.', 'error');
+                        return;
+                    }
+
+                    // Asumsi baris pertama adalah header: Nama,Kelas
+                    const headers = lines[0].split(',').map(h => h.trim());
+                    const requiredHeaders = ['Nama', 'Kelas'];
+
+                    if (!requiredHeaders.every(h => headers.includes(h))) {
+                        showMessage('import-message', `Header CSV harus mengandung: ${requiredHeaders.join(', ')}.`, 'error');
+                        return;
+                    }
+
+                    // Remove existing student users only for the selected class level
+                    // Fetch existing students to remove
+                    const studentsRef = collection(db, FIRESTORE_STUDENTS_COLLECTION_PATH);
+                    const usersRef = collection(db, FIRESTORE_USERS_COLLECTION_PATH);
+                    const qStudents = query(studentsRef, where("kelas", ">=", selectedClassLevel), where("kelas", "<", selectedClassLevel + 'z'));
+                    const existingStudentsSnapshot = await getDocs(qStudents);
+
+                    let studentsRemovedCount = 0;
+                    const batch = writeBatch(db); // Use batch for multiple writes
+
+                    existingStudentsSnapshot.forEach(docSnap => {
+                        const studentUsername = docSnap.id;
+                        batch.delete(doc(studentsRef, studentUsername));
+                        batch.delete(doc(usersRef, studentUsername)); // Also delete user account
+                        studentsRemovedCount++;
+                    });
+                    await batch.commit();
+                    console.log(`Removed ${studentsRemovedCount} existing students from Kelas ${selectedClassLevel} before import.`);
+
+                    let importedCount = 0;
+                    let skippedCount = 0;
+                    const importBatch = writeBatch(db); // New batch for imports
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(',').map(v => v.trim());
+                        if (values.length === headers.length) {
+                            const student = {};
+                            headers.forEach((header, index) => {
+                                student[header] = values[index];
+                            });
+
+                            const studentUsername = student['Nama']; // Nama sebagai username
+                            const kelas = student.Kelas; // Access 'Kelas' directly
+
+                            if (studentUsername && kelas) {
+                                // Validate if the class in CSV matches the selected class level
+                                if (!kelas.startsWith(selectedClassLevel)) {
+                                    console.warn(`Baris dilewati: Kelas '${kelas}' tidak cocok dengan tingkat kelas yang dipilih (${selectedClassLevel}).`);
+                                    skippedCount++;
+                                    continue;
+                                }
+
+                                // Add/Update student and user in batch
+                                const studentDocRef = doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, studentUsername);
+                                const userDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, studentUsername);
+
+                                importBatch.set(studentDocRef, { kelas: kelas });
+                                importBatch.set(userDocRef, { password: "siswa123", role: "siswa" }, { merge: true }); // Merge to keep existing password if any
+                                importedCount++;
+                            } else {
+                                console.warn(`Baris dilewati karena data tidak lengkap: ${lines[i]}`);
+                                skippedCount++;
+                            }
+                        }
+                    }
+                    await importBatch.commit(); // Commit the import batch
+
+                    showMessage('import-message', `Data siswa berhasil diimpor untuk Kelas ${selectedClassLevel}. Total ${importedCount} siswa ditambahkan. ${skippedCount} baris dilewati.`, 'success');
+                    // Data will be updated in-memory via onSnapshot listeners
+                };
+                reader.readAsText(file); // Baca file sebagai teks
+            } catch (e) {
+                console.error("Error importing students:", e);
+                showMessage('import-message', `Terjadi kesalahan saat membaca file: ${e.message}`, 'error');
+            }
+        }
+
+        function showAddSingleStudent() {
+            hideAllSubSections();
+            document.getElementById('add-single-student-section').classList.remove('hidden');
+            // Bersihkan input fields
+            document.getElementById('new-student-username').value = '';
+            document.getElementById('new-student-class').value = '';
+            document.getElementById('new-student-password').value = '';
+            hideMessage('add-student-message');
+        }
+
+        function hideAddSingleStudent() {
+            document.getElementById('add-single-student-section').classList.add('hidden');
+            hideMessage('add-student-message');
+        }
+
+        async function addSingleStudent() {
+            const username = document.getElementById('new-student-username').value.trim(); // Nama Lengkap sebagai username
+            const kelas = document.getElementById('new-student-class').value.trim();
+            const password = document.getElementById('new-student-password').value.trim() || 'siswa123'; // Default password
+            const addStudentMessage = document.getElementById('add-student-message');
+
+            hideMessage('add-student-message');
+
+            if (!username || !kelas) {
+                showMessage('add-student-message', 'Username (Nama Lengkap) dan Kelas harus diisi.', 'error');
+                return;
+            }
+
+            try {
+                const studentDocRef = doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, username);
+                const userDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, username);
+
+                const studentDocSnap = await getDoc(studentDocRef);
+                if (studentDocSnap.exists()) {
+                    showMessage('add-student-message', `Username (Nama) ${username} sudah terdaftar. Gunakan nama lain atau hubungi admin.`, 'error');
+                    return;
+                }
+
+                await setDoc(studentDocRef, { kelas: kelas });
+                await setDoc(userDocRef, { password: password, role: "siswa" });
+
+                showMessage('add-student-message', `Siswa ${username} (Kelas: ${kelas}) berhasil ditambahkan. Password: ${password}`, 'success');
+                // Opsional: bersihkan form setelah berhasil
+                document.getElementById('new-student-username').value = '';
+                document.getElementById('new-student-class').value = '';
+                document.getElementById('new-student-password').value = '';
+                console.log("Siswa Baru Ditambahkan:", { Username: username, Kelas: kelas, Password: password });
+            } catch (error) {
+                console.error("Error adding student:", error);
+                showMessage('add-student-message', `Terjadi kesalahan saat menambahkan siswa: ${error.message}`, 'error');
+            }
+        }
+
+        function filterLiveAttendance(selectedClass) {
+            currentLiveAttendanceFilterClass = selectedClass;
+            // Update active button styling
+            document.querySelectorAll('.filter-button').forEach(button => {
+                if (button.dataset.class === selectedClass) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+            viewLiveAttendanceToday(selectedClass); // Re-render with new filter
+        }
+
+        async function viewLiveAttendanceToday(filterClass = currentLiveAttendanceFilterClass) {
+            hideAllSubSections();
+            const liveRecapTableContainer = document.getElementById('live-recap-table-container');
+            const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            document.getElementById('live-attendance-date-filtered').textContent = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            liveRecapTableContainer.innerHTML = '<p class="text-gray-600 text-center">Memuat data live absensi...</p>'; // Loading indicator
+
+            try {
+                let q = query(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), where("tanggal", "==", today));
+                if (filterClass !== 'all') {
+                    q = query(q, where("kelas", ">=", filterClass), where("kelas", "<", filterClass + 'z'));
+                }
+                const querySnapshot = await getDocs(q); // Fetch once for live view
+                let todayRecords = [];
+                querySnapshot.forEach((doc) => {
+                    todayRecords.push(doc.data());
+                });
+
+                let tableHTML = '';
+                let totalAbsen = todayRecords.length;
+                document.getElementById('live-attendance-total').textContent = totalAbsen;
+
+
+                if (todayRecords.length === 0) {
+                    tableHTML = `
+                        <div class="empty-state">
+                            <i data-lucide="hourglass"></i>
+                            <p>Menunggu siswa melakukan absensi...</p>
+                            <p class="text-xs">Aktivitas absensi siswa akan muncul di sini secara real-time</p>
+                        </div>
+                    `;
+                } else {
+                    // Urutkan berdasarkan waktu absensi
+                    const sortedTodayRecords = [...todayRecords].sort((a, b) => a.waktu.localeCompare(b.waktu));
+
+                    tableHTML = `
+                        <table class="min-w-full bg-white rounded-lg shadow-md">
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    sortedTodayRecords.forEach(record => {
+                        tableHTML += `
+                            <tr>
+                                <td>${record.waktu}</td>
+                                <td>${record.username}</td>
+                                <td>${record.kelas}</td>
+                                <td>${record.status}</td>
+                            </tr>
+                        `;
+                    });
+                    tableHTML += `</tbody></table>`;
+                }
+                liveRecapTableContainer.innerHTML = tableHTML;
+                document.getElementById('live-attendance-section').classList.remove('hidden');
+                lucide.createIcons(); // Re-render Lucide icons
+            } catch (error) {
+                console.error("Error fetching live attendance:", error);
+                liveRecapTableContainer.innerHTML = `<p class="message error">Gagal memuat data live absensi: ${error.message}</p>`;
+            }
+        }
+
+        function hideLiveAttendance() {
+            document.getElementById('live-attendance-section').classList.add('hidden');
+            document.getElementById('live-recap-table-container').innerHTML = '';
+        }
+
+        async function viewAttendanceRecap() {
+            hideAllSubSections();
+            const recapTableContainer = document.getElementById('recap-table-container');
+            recapTableContainer.innerHTML = '<p class="text-gray-600 text-center">Memuat rekap absensi...</p>'; // Loading indicator
+
+            try {
+                const querySnapshot = await getDocs(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH));
+                let allRecords = [];
+                querySnapshot.forEach((doc) => {
+                    allRecords.push(doc.data());
+                });
+
+                let tableHTML = '';
+
+                if (allRecords.length === 0) {
+                    tableHTML = '<p class="text-gray-600">Belum ada data absensi yang tercatat.</p>';
+                } else {
+                    // Urutkan berdasarkan tanggal, kelas, lalu nama
+                    const sortedRecords = [...allRecords].sort((a, b) => {
+                        if (a.tanggal !== b.tanggal) return a.tanggal.localeCompare(b.tanggal);
+                        if (a.kelas !== b.kelas) return a.kelas.localeCompare(b.kelas);
+                        return a.username.localeCompare(b.username);
+                    });
+
+                    tableHTML = `
+                        <table class="min-w-full bg-white rounded-lg shadow-md">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Waktu</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    sortedRecords.forEach(record => {
+                        tableHTML += `
+                            <tr>
+                                <td>${record.tanggal}</td>
+                                <td>${record.waktu}</td>
+                                <td>${record.username}</td>
+                                <td>${record.kelas}</td>
+                                <td>${record.status}</td>
+                            </tr>
+                        `;
+                    });
+                    tableHTML += `</tbody></table>`;
+                }
+                recapTableContainer.innerHTML = tableHTML;
+                document.getElementById('attendance-recap-section').classList.remove('hidden');
+            } catch (error) {
+                console.error("Error fetching attendance recap:", error);
+                recapTableContainer.innerHTML = `<p class="message error">Gagal memuat rekap absensi: ${error.message}</p>`;
+            }
+        }
+
+        function hideAttendanceRecap() {
+            document.getElementById('attendance-recap-section').classList.add('hidden');
+            document.getElementById('recap-table-container').innerHTML = ''; // Clear table content
+            showSection('admin-menu'); // Kembali ke menu admin setelah menyembunyikan rekap
+        }
+
+        async function exportAttendanceToPdf() {
+            try {
+                const querySnapshot = await getDocs(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH));
+                let allRecords = [];
+                querySnapshot.forEach((doc) => {
+                    allRecords.push(doc.data());
+                });
+
+                if (allRecords.length === 0) {
+                    showMessage('admin-general-message', 'Tidak ada data absensi untuk diekspor.', 'error');
+                    return;
+                }
+
+                // Sembunyikan semua sub-bagian sebelum mencetak
+                hideAllSubSections();
+
+                // Siapkan konten untuk area cetak
+                const printArea = document.getElementById('attendance-recap-print-area');
+                let printContent = `
+                    <h2 style="text-align: center; margin-bottom: 15px; font-size: 24px; font-weight: bold; color: #333;">Rekapitulasi Absensi Siswa SMP</h2>
+                    <p style="text-align: center; margin-bottom: 20px; font-size: 14px; color: #555;">Per Tanggal: ${new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                `;
+
+                const sortedRecords = [...allRecords].sort((a, b) => {
+                    if (a.tanggal !== b.tanggal) return a.tanggal.localeCompare(b.tanggal);
+                    if (a.kelas !== b.kelas) return a.kelas.localeCompare(b.kelas);
+                    return a.username.localeCompare(b.username);
+                });
+
+                printContent += `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #e0e7ff; color: #374151;">Tanggal</th>
+                                <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #e0e7ff; color: #374151;">Waktu</th>
+                                <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #e0e7ff; color: #374151;">Nama</th>
+                                <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #e0e7ff; color: #374151;">Kelas</th>
+                                <th style="border: 1px solid #000; padding: 8px; text-align: left; background-color: #e0e7ff; color: #374151;">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                sortedRecords.forEach(record => {
+                    printContent += `
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 8px; font-size: 10px;">${record.tanggal}</td>
+                            <td style="border: 1px solid #000; padding: 8px; font-size: 10px;">${record.waktu}</td>
+                            <td style="border: 1px solid #000; padding: 8px; font-size: 10px;">${record.username}</td>
+                            <td style="border: 1px solid #000; padding: 8px; font-size: 10px;">${record.kelas}</td>
+                            <td style="border: 1px solid #000; padding: 8px; font-size: 10px;">${record.status}</td>
+                        </tr>
+                    `;
+                });
+                printContent += `</tbody></table>`;
+                printArea.innerHTML = printContent;
+
+                // Panggil fungsi cetak browser
+                window.print();
+
+                // Sembunyikan kembali area cetak setelah cetak selesai (atau dibatalkan)
+                setTimeout(() => {
+                    printArea.innerHTML = ''; // Bersihkan konten setelah cetak
+                    showSection('admin-menu'); // Kembali ke menu admin
+                }, 1000); // Beri sedikit waktu
+            } catch (error) {
+                console.error("Error exporting to PDF:", error);
+                showMessage('admin-general-message', `Gagal mengekspor ke PDF: ${error.message}`, 'error');
+            }
+        }
+
+        async function exportAttendanceToCsv() {
+            try {
+                const querySnapshot = await getDocs(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH));
+                let allRecords = [];
+                querySnapshot.forEach((doc) => {
+                    allRecords.push(doc.data());
+                });
+
+                if (allRecords.length === 0) {
+                    showMessage('admin-general-message', 'Tidak ada data absensi untuk diekspor.', 'error');
+                    return;
+                }
+
+                // Headers sesuai format yang diminta: Tanggal, nama, kelas, keterangan
+                const headers = ["Tanggal", "nama", "kelas", "keterangan"];
+                const rows = allRecords.map(record => {
+                    // Format tanggal ke DD/MM/YYYY
+                    const dateParts = record.tanggal.split('-'); // YYYY-MM-DD
+                    const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`; // DD/MM/YYYY
+                    return [
+                        formattedDate,
+                        record.username, // Nama
+                        record.kelas,
+                        record.status // Keterangan
+                    ];
+                });
+
+                let csvContent = headers.join(",") + "\n";
+                rows.forEach(row => {
+                    // Escape commas in data fields if necessary
+                    const escapedRow = row.map(field => {
+                        if (typeof field === 'string' && field.includes(',')) {
+                            return `"${field.replace(/"/g, '""')}"`; // Enclose in quotes and escape existing quotes
+                        }
+                        return field;
+                    });
+                    csvContent += escapedRow.join(",") + "\n";
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                if (link.download !== undefined) { // feature detection
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", "rekap_absensi_semua.csv");
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showMessage('admin-general-message', 'Rekap absensi berhasil diekspor ke CSV.', 'success');
+                } else {
+                    showMessage('admin-general-message', 'Browser Anda tidak mendukung ekspor CSV langsung.', 'error');
+                }
+                // Setelah ekspor, kembali ke menu admin
+                showSection('admin-menu');
+            } catch (error) {
+                console.error("Error exporting to CSV:", error);
+                showMessage('admin-general-message', `Gagal mengekspor ke CSV: ${error.message}`, 'error');
+            }
+        }
+
+        // New function to export live attendance based on filter
+        async function exportLiveAttendanceToCsv(filterClass) {
+            try {
+                const today = new Date().toISOString().slice(0, 10);
+                let q = query(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), where("tanggal", "==", today));
+                if (filterClass !== 'all') {
+                    q = query(q, where("kelas", ">=", filterClass), where("kelas", "<", filterClass + 'z'));
+                }
+                const querySnapshot = await getDocs(q);
+                let recordsToExport = [];
+                querySnapshot.forEach((doc) => {
+                    recordsToExport.push(doc.data());
+                });
+
+                if (recordsToExport.length === 0) {
+                    showMessage('admin-general-message', `Tidak ada data absensi untuk Kelas ${filterClass === 'all' ? 'Semua' : filterClass} hari ini untuk diekspor.`, 'error');
+                    return;
+                }
+
+                const headers = ["Tanggal", "nama", "kelas", "keterangan"];
+                const rows = recordsToExport.map(record => {
+                    const dateParts = record.tanggal.split('-');
+                    const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                    return [
+                        formattedDate,
+                        record.username,
+                        record.kelas,
+                        record.status
+                    ];
+                });
+
+                let csvContent = headers.join(",") + "\n";
+                rows.forEach(row => {
+                    const escapedRow = row.map(field => {
+                        if (typeof field === 'string' && field.includes(',')) {
+                            return `"${field.replace(/"/g, '""')}"`;
+                        }
+                        return field;
+                    });
+                    csvContent += escapedRow.join(",") + "\n";
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `rekap_absensi_live_kelas_${filterClass}_${today}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showMessage('admin-general-message', `Rekap absensi live untuk Kelas ${filterClass === 'all' ? 'Semua' : filterClass} berhasil diekspor ke CSV.`, 'success');
+                } else {
+                    showMessage('admin-general-message', 'Browser Anda tidak mendukung ekspor CSV langsung.', 'error');
+                }
+                showSection('admin-menu'); // Return to admin menu after export
+            } catch (error) {
+                console.error("Error exporting live attendance to CSV:", error);
+                showMessage('admin-general-message', `Gagal mengekspor rekap live absensi: ${error.message}`, 'error');
+            }
+        }
+
+
+        function showManageAdminAccount() {
+            hideAllSubSections();
+            document.getElementById('manage-admin-account-section').classList.remove('hidden');
+            // Isi username admin saat ini ke input field
+            document.getElementById('new-admin-username').value = loggedInUser;
+            // Bersihkan input password
+            document.getElementById('current-admin-password').value = '';
+            document.getElementById('new-admin-password').value = '';
+            document.getElementById('confirm-new-admin-password').value = '';
+            hideMessage('admin-account-message');
+        }
+
+        function hideManageAdminAccount() {
+            document.getElementById('manage-admin-account-section').classList.add('hidden');
+            hideMessage('admin-account-message');
+        }
+
+        async function updateAdminAccount() {
+            const currentPassword = document.getElementById('current-admin-password').value;
+            const newUsername = document.getElementById('new-admin-username').value.trim();
+            const newPassword = document.getElementById('new-admin-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-admin-password').value;
+            const adminAccountMessage = document.getElementById('admin-account-message');
+
+            hideMessage('admin-account-message');
+
+            try {
+                // Fetch current admin user data to verify password
+                const adminDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, loggedInUser);
+                const adminDocSnap = await getDoc(adminDocRef);
+
+                if (!adminDocSnap.exists() || adminDocSnap.data().password !== currentPassword) {
+                    showMessage('admin-account-message', 'Password admin saat ini salah.', 'error');
+                    return;
+                }
+
+                if (!newUsername) {
+                    showMessage('admin-account-message', 'Username baru tidak boleh kosong.', 'error');
+                    return;
+                }
+
+                if (newPassword !== confirmNewPassword) {
+                    showMessage('admin-account-message', 'Password baru dan konfirmasi password tidak cocok.', 'error');
+                    return;
+                }
+
+                if (!newPassword) {
+                    showMessage('admin-account-message', 'Password baru tidak boleh kosong.', 'error');
+                    return;
+                }
+
+                // If username changed, delete old doc and create new one
+                if (newUsername !== loggedInUser) {
+                    await deleteDoc(adminDocRef); // Delete old admin user document
+                    // Update any attendance records or student data that might reference the old admin username
+                    // (Though typically admin username isn't referenced in attendance records directly)
+                }
+
+                // Set new admin user data
+                const newAdminDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, newUsername);
+                await setDoc(newAdminDocRef, { password: newPassword, role: "admin" });
+
+                loggedInUser = newUsername; // Update loggedInUser
+                document.getElementById('admin-username-display').textContent = loggedInUser; // Update UI
+
+                showMessage('admin-account-message', 'Akun admin berhasil diperbarui!', 'success');
+                // Bersihkan form
+                document.getElementById('current-admin-password').value = '';
+                document.getElementById('new-admin-password').value = '';
+                document.getElementById('confirm-new-admin-password').value = '';
+                console.log("Akun Admin Diperbarui:", users[loggedInUser]);
+            } catch (error) {
+                console.error("Error updating admin account:", error);
+                showMessage('admin-account-message', `Terjadi kesalahan saat memperbarui akun admin: ${error.message}`, 'error');
+            }
+        }
+
+        function showManageAttendanceTime() {
+            hideAllSubSections();
+            document.getElementById('manage-attendance-time-section').classList.remove('hidden');
+            // Set nilai input waktu dan tanggal sesuai dengan variabel global
+            document.getElementById('attendance-date').value = attendanceDate;
+            document.getElementById('start-time').value = attendanceStartTime;
+            document.getElementById('end-time').value = attendanceEndTime;
+            updateAttendanceStatusBadge(); // Update status text and button
+            hideMessage('attendance-time-message');
+        }
+
+        function hideManageAttendanceTime() {
+            document.getElementById('manage-attendance-time-section').classList.add('hidden');
+            hideMessage('attendance-time-message');
+        }
+
+        async function setAttendanceTime() {
+            const newAttendanceDate = document.getElementById('attendance-date').value;
+            const newStartTime = document.getElementById('start-time').value;
+            const newEndTime = document.getElementById('end-time').value;
+            const attendanceTimeMessage = document.getElementById('attendance-time-message');
+
+            if (!newAttendanceDate || !newStartTime || !newEndTime) {
+                showMessage('attendance-time-message', 'Tanggal, waktu mulai, dan selesai harus diisi.', 'error');
+                return;
+            }
+
+            // Simple validation: start time must be before end time
+            if (newStartTime >= newEndTime) {
+                showMessage('attendance-time-message', 'Waktu mulai harus lebih awal dari waktu selesai.', 'error');
+                return;
+            }
+
+            try {
+                const appSettingsRef = doc(db, FIRESTORE_APP_SETTINGS_DOC_PATH);
+                await updateDoc(appSettingsRef, {
+                    attendanceDate: newAttendanceDate,
+                    attendanceStartTime: newStartTime,
+                    attendanceEndTime: newEndTime
+                });
+                // Update local variables after successful Firestore update
+                attendanceDate = newAttendanceDate;
+                attendanceStartTime = newStartTime;
+                attendanceEndTime = newEndTime;
+
+                showMessage('attendance-time-message', `Waktu & Tanggal absensi berhasil diperbarui menjadi ${new Date(attendanceDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}, ${attendanceStartTime} - ${attendanceEndTime}.`, 'success');
+                updateAttendanceStatusBadge(); // Update badge in admin header
+            } catch (error) {
+                console.error("Error setting attendance time:", error);
+                showMessage('attendance-time-message', `Terjadi kesalahan saat menyimpan waktu absensi: ${error.message}`, 'error');
+            }
+        }
+
+        async function toggleAttendanceActive() {
+            try {
+                const appSettingsRef = doc(db, FIRESTORE_APP_SETTINGS_DOC_PATH);
+                await updateDoc(appSettingsRef, {
+                    isAttendanceActive: !isAttendanceActive
+                });
+                // Update local variable after successful Firestore update
+                isAttendanceActive = !isAttendanceActive;
+
+                updateAttendanceStatusBadge(); // Update badge and button text
+                showMessage('attendance-time-message', `Absensi sekarang ${isAttendanceActive ? 'AKTIF' : 'TIDAK AKTIF'}.`, isAttendanceActive ? 'success' : 'error');
+            } catch (error) {
+                console.error("Error toggling attendance active status:", error);
+                showMessage('attendance-time-message', `Terjadi kesalahan saat mengubah status absensi: ${error.message}`, 'error');
+            }
+        }
+
+        function isCurrentTimeWithinAttendanceWindow() {
+            if (!isAttendanceActive) {
+                return { status: false, message: "Absensi tidak aktif. Harap hubungi admin." };
+            }
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+            const currentDay = now.getDate().toString().padStart(2, '0');
+            const currentDateString = `${currentYear}-${currentMonth}-${currentDay}`; // YYYY-MM-DD
+
+            // Check if current date matches the set attendance date
+            if (currentDateString !== attendanceDate) {
+                return { status: false, message: `Absensi hanya diperbolehkan pada tanggal ${new Date(attendanceDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}.` };
+            }
+
+            const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes(); // Current time in minutes
+
+            const [startHour, startMinute] = attendanceStartTime.split(':').map(Number);
+            const startTimeInMinutes = startHour * 60 + startMinute;
+
+            const [endHour, endMinute] = attendanceEndTime.split(':').map(Number);
+            const endTimeInMinutes = endHour * 60 + endMinute;
+
+            if (currentTimeInMinutes >= startTimeInMinutes && currentTimeInMinutes <= endTimeInMinutes) {
+                return { status: true, message: "Waktu absensi valid." };
+            } else {
+                return { status: false, message: `Absensi hanya diperbolehkan antara ${attendanceStartTime} - ${attendanceEndTime}.` };
+            }
+        }
+
+        function showClassDataMenu() {
+            hideAllSubSections();
+            document.getElementById('class-data-menu-section').classList.remove('hidden');
+        }
+
+        function hideClassDataMenu() {
+            document.getElementById('class-data-menu-section').classList.add('hidden');
+        }
+
+        let currentClassBeingViewed = null; // To keep track of the class when editing/deleting
+
+        async function viewClassData(classNumber) {
+            hideAllSubSections();
+            currentClassBeingViewed = classNumber; // Set the currently viewed class
+            document.getElementById('class-data-title').textContent = classNumber;
+            const classDataTableContainer = document.getElementById('class-data-table-container');
+            classDataTableContainer.innerHTML = '<p class="text-gray-600 text-center">Memuat data siswa...</p>'; // Loading indicator
+
+            try {
+                // Use onSnapshot for real-time updates to student list
+                const q = query(collection(db, FIRESTORE_STUDENTS_COLLECTION_PATH), where("kelas", ">=", String(classNumber)), where("kelas", "<", String(classNumber) + 'z'));
+                onSnapshot(q, (querySnapshot) => {
+                    let filteredStudents = [];
+                    querySnapshot.forEach((doc) => {
+                        filteredStudents.push({ username: doc.id, ...doc.data() });
+                    });
+
+                    filteredStudents.sort((a, b) => a.username.localeCompare(b.username)); // Sort by username (Nama)
+
+                    let tableHTML = '';
+                    if (filteredStudents.length === 0) {
+                        tableHTML = `<p class="text-gray-600">Belum ada siswa terdaftar untuk Kelas ${classNumber}.</p>`;
+                    } else {
+                        tableHTML = `
+                            <table class="min-w-full bg-white rounded-lg shadow-md">
+                                <thead>
+                                    <tr>
+                                        <th>Username (Nama)</th>
+                                        <th>Kelas</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        filteredStudents.forEach(student => {
+                            tableHTML += `
+                                <tr>
+                                    <td>${student.username}</td>
+                                    <td>${student.kelas}</td>
+                                    <td>
+                                        <button onclick="showEditStudentModal('${student.username}', '${student.kelas}')" class="btn-blue !py-2 !px-3 !text-sm !mb-0 !w-auto mr-2"><i data-lucide="edit"></i> Edit</button>
+                                        <button onclick="showConfirmDeleteModal('${student.username}')" class="button-danger !py-2 !px-3 !text-sm !mb-0 !w-auto"><i data-lucide="trash-2"></i> Hapus</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        tableHTML += `</tbody></table>`;
+                    }
+                    classDataTableContainer.innerHTML = tableHTML;
+                    lucide.createIcons(); // Re-render Lucide icons for new buttons
+                }, (error) => {
+                    console.error("Error fetching class data:", error);
+                    classDataTableContainer.innerHTML = `<p class="message error">Gagal memuat data siswa: ${error.message}</p>`;
+                });
+
+                document.getElementById('class-data-detail-section').classList.remove('hidden');
+            } catch (error) {
+                console.error("Error setting up class data listener:", error);
+                classDataTableContainer.innerHTML = `<p class="message error">Gagal memuat data siswa: ${error.message}</p>`;
+            }
+        }
+
+        function hideClassDataDetail() {
+            document.getElementById('class-data-detail-section').classList.add('hidden');
+            document.getElementById('class-data-table-container').innerHTML = '';
+            currentClassBeingViewed = null; // Clear the viewed class
+            showClassDataMenu(); // Kembali ke menu pilihan kelas
+        }
+
+        // Fungsi Pengaturan Aplikasi
+        function showAppSettings() {
+            hideAllSubSections();
+            document.getElementById('app-settings-section').classList.remove('hidden');
+            document.getElementById('app-title-input').value = appTitle;
+            // Clear file inputs when showing settings to avoid confusion
+            document.getElementById('left-logo-file-input').value = '';
+            document.getElementById('right-logo-file-input').value = ''; // Ensure this is also cleared
+            // Update previews based on current URLs
+            updateAppTitleDisplay(); // This will show/hide previews based on leftLogoUrl/rightLogoUrl
+            hideMessage('app-settings-message');
+        }
+
+        function hideAppSettings() {
+            document.getElementById('app-settings-section').classList.add('hidden');
+            hideMessage('app-settings-message');
+        }
+
+        async function updateAppSettings() {
+            const newAppTitle = document.getElementById('app-title-input').value.trim();
+            const leftLogoFileInput = document.getElementById('left-logo-file-input');
+            const appSettingsMessage = document.getElementById('app-settings-message');
+
+            hideMessage('app-settings-message');
+
+            if (!newAppTitle) {
+                showMessage('app-settings-message', 'Nama aplikasi tidak boleh kosong.', 'error');
+                return;
+            }
+
+            let newLeftLogoUrl = leftLogoUrl; // Start with current URL
+
+            if (leftLogoFileInput.files.length > 0) {
+                const file = leftLogoFileInput.files[0];
+                newLeftLogoUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsDataURL(file);
+                }).catch(error => {
+                    console.error("Error reading left logo file:", error);
+                    showMessage('app-settings-message', `Gagal membaca file logo: ${file.name}.`, 'error');
+                    return leftLogoUrl; // Revert to old URL on error
+                });
+            } else if (leftLogoUrl && !leftLogoFileInput.value) { // If there was a logo, but input is now empty
+                newLeftLogoUrl = ""; // Clear the logo
+            }
+
+            // Always ensure rightLogoUrl is empty as we only use one logo
+            rightLogoUrl = "";
+
+            try {
+                const appSettingsRef = doc(db, FIRESTORE_APP_SETTINGS_DOC_PATH);
+                await setDoc(appSettingsRef, {
+                    appTitle: newAppTitle,
+                    leftLogoUrl: newLeftLogoUrl,
+                    rightLogoUrl: "" // Ensure this is always empty in Firestore
+                }, { merge: true });
+
+                // Update local variables after successful Firestore update
+                appTitle = newAppTitle;
+                leftLogoUrl = newLeftLogoUrl;
+
+                updateAppTitleDisplay(); // Update UI
+                showMessage('app-settings-message', 'Pengaturan aplikasi berhasil diperbarui!', 'success');
+            } catch (error) {
+                console.error("Error updating app settings:", error);
+                showMessage('app-settings-message', `Terjadi kesalahan saat menyimpan pengaturan: ${error.message}`, 'error');
+            }
+        }
+
+
+        // --- 5. Fungsi Siswa ---
+
+        async function recordAttendance() {
+            const attendanceCheck = isCurrentTimeWithinAttendanceWindow();
+            const attendanceMessage = document.getElementById('attendance-message');
+            hideMessage('attendance-message');
+
+            if (!attendanceCheck.status) {
+                showMessage('attendance-message', attendanceCheck.message, 'error');
+                return;
+            }
+
+            const currentDateTime = new Date();
+            const currentTime = currentDateTime.toTimeString().slice(0, 8); // HH:MM:SS
+
+            try {
+                // Check if student already attended today (based on attendanceDate from settings)
+                const attendanceRef = collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH);
+                const q = query(attendanceRef,
+                    where("username", "==", loggedInUser),
+                    where("tanggal", "==", attendanceDate)
+                );
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    showMessage('attendance-message', `Anda (${loggedInUser}) sudah melakukan absensi untuk tanggal ${new Date(attendanceDate).toLocaleDateString('id-ID')}.`, 'error');
+                    return;
+                }
+
+                const studentDocRef = doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, loggedInUser);
+                const studentDocSnap = await getDoc(studentDocRef);
+
+                if (studentDocSnap.exists()) {
+                    const studentInfo = studentDocSnap.data();
+                    const record = {
+                        tanggal: attendanceDate,
+                        waktu: currentTime,
+                        username: loggedInUser,
+                        kelas: studentInfo.kelas,
+                        status: "Hadir"
+                    };
+                    await addDoc(attendanceRef, record); // Add new attendance record
+
+                    showMessage('attendance-message', `Absensi untuk ${loggedInUser} (Kelas: ${studentInfo.kelas}) berhasil dicatat pada ${currentTime} untuk tanggal ${new Date(attendanceDate).toLocaleDateString('id-ID')}.`, 'success');
+                    console.log("Absensi Tercatat:", record);
+                } else {
+                    showMessage('attendance-message', `Error: Informasi siswa dengan username ${loggedInUser} tidak ditemukan. Harap hubungi admin.`, 'error');
+                }
+            } catch (error) {
+                console.error("Error recording attendance:", error);
+                showMessage('attendance-message', `Terjadi kesalahan saat mencatat absensi: ${error.message}`, 'error');
+            }
+        }
+
+        // --- Fungsi Edit dan Hapus Siswa (Baru) ---
+
+        function showEditStudentModal(oldUsername, oldClass) {
+            const modal = document.getElementById('edit-student-modal');
+            document.getElementById('edit-old-username').value = oldUsername;
+            document.getElementById('edit-new-username').value = oldUsername;
+            document.getElementById('edit-new-class').value = oldClass;
+            hideMessage('edit-student-message'); // Clear previous messages
+            modal.classList.remove('hidden');
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        function hideEditStudentModal() {
+            document.getElementById('edit-student-modal').classList.add('hidden');
+        }
+
+        async function saveEditedStudent() {
+            const oldUsername = document.getElementById('edit-old-username').value;
+            const newUsername = document.getElementById('edit-new-username').value.trim();
+            const newClass = document.getElementById('edit-new-class').value.trim();
+            const editMessage = document.getElementById('edit-student-message');
+
+            hideMessage('edit-student-message');
+
+            if (!newUsername || !newClass) {
+                showMessage('edit-student-message', 'Username (Nama Lengkap) dan Kelas harus diisi.', 'error');
+                return;
+            }
+
+            try {
+                const studentDocRef = doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, oldUsername);
+                const userDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, oldUsername);
+
+                // Check if new username already exists and is different from old username
+                if (newUsername !== oldUsername) {
+                    const newStudentDocSnap = await getDoc(doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, newUsername));
+                    if (newStudentDocSnap.exists()) {
+                        showMessage('edit-student-message', `Username (Nama) ${newUsername} sudah terdaftar. Gunakan nama lain.`, 'error');
+                        return;
+                    }
+                }
+
+                // Use a batch for atomic updates
+                const batch = writeBatch(db);
+
+                // If username changed, delete old entries and create new ones
+                if (newUsername !== oldUsername) {
+                    batch.delete(studentDocRef); // Delete old student document
+                    batch.delete(userDocRef); // Delete old user account
+
+                    // Create new student and user documents with new username
+                    batch.set(doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, newUsername), { kelas: newClass });
+                    batch.set(doc(db, FIRESTORE_USERS_COLLECTION_PATH, newUsername), { password: users[oldUsername]?.password || "siswa123", role: "siswa" });
+
+                    // Update attendance records (this requires fetching and updating each record)
+                    const attendanceQuery = query(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), where("username", "==", oldUsername));
+                    const attendanceSnapshot = await getDocs(attendanceQuery);
+                    attendanceSnapshot.forEach(recordDoc => {
+                        batch.update(recordDoc.ref, { username: newUsername, kelas: newClass });
+                    });
+
+                } else {
+                    // If only class changed, just update the existing student document
+                    batch.update(studentDocRef, { kelas: newClass });
+
+                    // Update attendance records (only class might change if username is same)
+                    const attendanceQuery = query(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), where("username", "==", oldUsername));
+                    const attendanceSnapshot = await getDocs(attendanceQuery);
+                    attendanceSnapshot.forEach(recordDoc => {
+                        batch.update(recordDoc.ref, { kelas: newClass });
+                    });
+                }
+
+                await batch.commit(); // Commit all batch operations
+
+                showMessage('admin-general-message', `Data siswa "${oldUsername}" berhasil diperbarui menjadi "${newUsername}" (Kelas: ${newClass}).`, 'success');
+                hideEditStudentModal();
+                // Re-render the class data table to show changes
+                if (currentClassBeingViewed) {
+                    viewClassData(currentClassBeingViewed);
+                }
+            } catch (error) {
+                console.error("Error saving edited student:", error);
+                showMessage('edit-student-message', `Terjadi kesalahan saat menyimpan perubahan: ${error.message}`, 'error');
+            }
+        }
+
+        function showConfirmDeleteModal(usernameToDelete) {
+            const modal = document.getElementById('confirm-delete-modal');
+            document.getElementById('delete-username-to-confirm').value = usernameToDelete;
+            document.getElementById('confirm-delete-message').textContent = `Apakah Anda yakin ingin menghapus siswa "${usernameToDelete}"? Tindakan ini tidak dapat dibatalkan. Ini juga akan menghapus semua catatan absensi siswa ini.`;
+            modal.classList.remove('hidden');
+            lucide.createIcons(); // Re-render Lucide icons
+        }
+
+        function hideConfirmDeleteModal() {
+            document.getElementById('confirm-delete-modal').classList.add('hidden');
+        }
+
+        async function performDeleteStudent() {
+            const usernameToDelete = document.getElementById('delete-username-to-confirm').value;
+
+            try {
+                const studentDocRef = doc(db, FIRESTORE_STUDENTS_COLLECTION_PATH, usernameToDelete);
+                const userDocRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, usernameToDelete);
+
+                const batch = writeBatch(db);
+
+                // Delete student document
+                batch.delete(studentDocRef);
+                // Delete user account document
+                batch.delete(userDocRef);
+
+                // Delete all attendance records for this student
+                const attendanceQuery = query(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), where("username", "==", usernameToDelete));
+                const attendanceSnapshot = await getDocs(attendanceQuery);
+                attendanceSnapshot.forEach(recordDoc => {
+                    batch.delete(recordDoc.ref);
+                });
+
+                await batch.commit(); // Commit all batch operations
+
+                showMessage('admin-general-message', `Siswa "${usernameToDelete}" dan semua catatan absensinya berhasil dihapus.`, 'success');
+                hideConfirmDeleteModal();
+                // Re-render the class data table to show changes
+                if (currentClassBeingViewed) {
+                    viewClassData(currentClassBeingViewed);
+                }
+            } catch (error) {
+                console.error("Error deleting student:", error);
+                showMessage('admin-general-message', `Terjadi kesalahan saat menghapus siswa: ${error.message}`, 'error');
+                hideConfirmDeleteModal();
+            }
+        }
+
+        // --- Inisialisasi Firebase & Pemuatan Data Awal ---
+        async function initializeFirebaseAndLoadData() {
+            showLoadingOverlay();
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                firebaseApp = initializeApp(firebaseConfig);
+                auth = getAuth(firebaseApp);
+                db = getFirestore(firebaseApp);
+
+                // Authenticate
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                currentUserId = auth.currentUser?.uid || crypto.randomUUID();
+
+                // Load App Settings
+                const appSettingsRef = doc(db, FIRESTORE_APP_SETTINGS_DOC_PATH);
+                const appSettingsSnap = await getDoc(appSettingsRef);
+                if (appSettingsSnap.exists()) {
+                    const settings = appSettingsSnap.data();
+                    appTitle = settings.appTitle || "Sistem Absensi SMP";
+                    leftLogoUrl = settings.leftLogoUrl || "";
+                    attendanceDate = settings.attendanceDate || new Date().toISOString().slice(0, 10);
+                    attendanceStartTime = settings.attendanceStartTime || '07:00';
+                    attendanceEndTime = settings.attendanceEndTime || '08:00';
+                    isAttendanceActive = typeof settings.isAttendanceActive === 'boolean' ? settings.isAttendanceActive : true;
+                } else {
+                    // If settings don't exist, create default ones
+                    await setDoc(appSettingsRef, {
+                        appTitle: appTitle,
+                        leftLogoUrl: leftLogoUrl,
+                        rightLogoUrl: rightLogoUrl,
+                        attendanceDate: attendanceDate,
+                        attendanceStartTime: attendanceStartTime,
+                        attendanceEndTime: attendanceEndTime,
+                        isAttendanceActive: isAttendanceActive
+                    });
+                }
+
+                // Ensure default admin user exists
+                const adminUserRef = doc(db, FIRESTORE_USERS_COLLECTION_PATH, 'admin');
+                const adminUserSnap = await getDoc(adminUserRef);
+                if (!adminUserSnap.exists()) {
+                    await setDoc(adminUserRef, {
+                        password: 'admin123',
+                        role: 'admin'
+                    });
+                    console.log("Default admin user 'admin' created.");
+                }
+
+                // Load Users (Admin and Students)
+                onSnapshot(collection(db, FIRESTORE_USERS_COLLECTION_PATH), (snapshot) => {
+                    users = {}; // Clear existing users
+                    snapshot.forEach(doc => {
+                        users[doc.id] = doc.data();
+                    });
+                    console.log("Users loaded/updated from Firestore:", users);
+                }, (error) => {
+                    console.error("Error fetching users:", error);
+                    showMessage('login-message', `Gagal memuat data pengguna: ${error.message}`, 'error');
+                });
+
+                // Load Students Data
+                onSnapshot(collection(db, FIRESTORE_STUDENTS_COLLECTION_PATH), (snapshot) => {
+                    students_data.clear(); // Clear existing student data
+                    snapshot.forEach(doc => {
+                        students_data.set(doc.id, doc.data());
+                    });
+                    console.log("Students data loaded/updated from Firestore:", Array.from(students_data.entries()));
+                }, (error) => {
+                    console.error("Error fetching students data:", error);
+                    showMessage('login-message', `Gagal memuat data siswa: ${error.message}`, 'error');
+                });
+
+                // Load Attendance Records
+                onSnapshot(collection(db, FIRESTORE_ATTENDANCE_COLLECTION_PATH), (snapshot) => {
+                    absensi_records = []; // Clear existing records
+                    snapshot.forEach(doc => {
+                        absensi_records.push(doc.data());
+                    });
+                    console.log("Attendance records loaded/updated from Firestore:", absensi_records);
+                    // If live attendance is open, refresh it
+                    if (!document.getElementById('live-attendance-section').classList.contains('hidden')) {
+                        viewLiveAttendanceToday(currentLiveAttendanceFilterClass);
+                    }
+                }, (error) => {
+                    console.error("Error fetching attendance records:", error);
+                    showMessage('login-message', `Gagal memuat catatan absensi: ${error.message}`, 'error');
+                });
+
+
+                hideLoadingOverlay();
+                showSection('login-section'); // Tampilkan halaman login setelah data dimuat
+                updateAppTitleDisplay(); // Initial update for app title and logos
+                updateAttendanceStatusBadge(); // Initial update for attendance status
+
+            } catch (error) {
+                console.error("Failed to initialize Firebase or load initial data:", error);
+                hideLoadingOverlay();
+                document.getElementById('login-section').classList.remove('hidden'); // Show login section even on error
+                showMessage('login-message', `Gagal memuat aplikasi. Periksa koneksi internet atau hubungi dukungan. (${error.message})`, 'error');
+            }
+        }
+
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebaseAndLoadData();
+            // Update time on login page every second
+            setInterval(updateCurrentTimeDisplay, 1000);
+            updateCurrentTimeDisplay(); // Initial call
+            // Update time on admin dashboard every second (if visible)
+            setInterval(updateAdminDateTime, 1000);
+            updateAdminDateTime(); // Initial call
+            lucide.createIcons(); // Initial rendering of Lucide icons
+        });
+    </script>
+</body>
+</html>
